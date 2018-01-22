@@ -1,7 +1,5 @@
 # BlockEditor
 
-This is my first project!
-
 ## About this
 
 This is a plugin of PocketMine-MP what places and breaks blocks like WEdit.
@@ -22,5 +20,6 @@ WEditと違う点として、
 
 |Commmand|Usage|Description|
 |---|---|---|
-|//pos1|//pos1 ([show\|tp])
-|//pos2|//pos2 ([show\|tp])
+|//pos1|//pos1 ([show\|tp])|//pos1のみだとpos1を設定します。showをつけるとpos1の座標を見ることができ、tpをつけるとpos1の座標に飛ぶことができます。
+|//pos2|//pos2 ([show\|tp])|//pos1と同じ。
+|//pos|//pos (1\|2)|**This is COMMING SOON.** pos1,pos2で設定されていないほうを設定します。
