@@ -86,17 +86,3 @@ commands:
   description: "clear Task and Pos. This may make memory free."
   usage: "//clear"
   permission: op
-
-#Define permissions used in your plugin here. You can check whether permissibles have permissions in your plugin to allow or disallow actions such as command execution.
-permissions:
- #Root permission node
- skeleton:
-  #Default state of this permission. `op` means that only server operators will have this permission by default.
-  default: true
-  #Description of what the permission does or doesn't allow.
-  description: "Example root permission node"
-  #Child permission nodes. If the parent permission node is true, the children will have the values set here. If false, all child permissions will be inverted.
-  children:
-   skeleton.command:
-    default: true
-    description: "Allows the use of /examplecommand"
