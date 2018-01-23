@@ -48,8 +48,6 @@ class BlockEditTask extends Task
     /** @var Config */
     private $config;
 
-    //set [ID] -s [SPEED]
-
     public function __construct(Player $player, Vector3 $start, Vector3 $end, Block $place = null, Block $search = null, array $options = [])
     {
         $this->config = Server::getInstance()->getPluginManager()->getPlugin('BlockEditor')->getConfig();
@@ -69,7 +67,7 @@ class BlockEditTask extends Task
         $this->blockcount = ($this->max->x - $this->min->x + 1) * ($this->max->y - $this->min->y + 1) * ($this->max->z - $this->min->z + 1);
         $this->level = $player->getLevel();
 
-        foreach($this->config->getAll() as $key => $value){
+        foreach(Server::getInstance()->getPluginManager()->getPlugin('BlockEditor')->getConfig()->getAll() as $key => $value){
             if(!empty($value['short_key']) && preg_match('/^[a-zA-Z]$/', $value['short_key'])) $this->short[$value['short_key']] = $value;
             if(!empty($value['long_key']) && preg_match('/^[a-zA-Z0-9_]+$/', $value['long_key'])) $this->short[$value['long_key']] = $value;
         }
@@ -115,8 +113,6 @@ class BlockEditTask extends Task
                     for ($count = 1; $count <= $this->getOption('per_tick', 'int'); $count++) {
                         //置き換え対象かどうかをまとめて調査
                         do {
-                            //$this->player->sendMessage("DEBUG:".$this->PosToStr($this->now));
-                            //Server::getInstance()->getLogger()->info("DEBUG:" . $this->PosToStr($this->now));
                             if ($this->active && $this->level->getBlock($this->now)->getId() == $this->search->getId() && (empty($this->getOption("compare_meta")) || $this->level->getBlock($this->now)->getDamage() == $this->search->getDamage())) {
                                 array_push($this->blocks, [$this->PosToStr($this->now), $this->BlockToStr($this->level->getBlock($this->now))]);
                                 $this->level->setBlock($this->now, $this->place);

@@ -77,6 +77,7 @@ class Main extends PluginBase implements Listener{
 			//コマンド送信者がプレイヤーな時のみ
 			switch ($command->getName()) {
 				case "/pos1":
+					//pos1,pos2をまとめて関数にしてもいいかも
 					$num = 1;
 					if (empty($args[0])) {
 						if ($this->setPos($player, $player, $num)) {
@@ -156,7 +157,7 @@ class Main extends PluginBase implements Listener{
 					$taskId = $this->getServer()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
 					$this->tasks[$taskId] = $task;
 					
-					//TODO このメッセージをコンフィグで設定可能に
+					//TODO: このメッセージをコンフィグで設定可能に
 					Server::getInstance()->broadcastMessage($player->getName() . "'s §bset§f(TaskID: §c" . $task->getTaskId() . "§f, §a" . $task->blockcount . "§f Blocks) started.");
 					return true;
 					break;
@@ -179,7 +180,7 @@ class Main extends PluginBase implements Listener{
 					$taskId = $this->getServer()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
 					$this->tasks[$taskId] = $task;
 					
-					//TODO このメッセージをコンフィグで設定可能に
+					//TODO: このメッセージをコンフィグで設定可能に
 					Server::getInstance()->broadcastMessage($player->getName() . "'s §bcut§f(TaskID: §c" . $task->getTaskId() . "§f, §a" . $task->blockcount . "§f Blocks) started.");
 
 					return true;
@@ -198,13 +199,15 @@ class Main extends PluginBase implements Listener{
 							return false;
 							break;
 
-						case $this->issetPos($player, 1):
-							$player->sendMessage("§6Please set pos1 before.");
-							return true;
-							break;
-
-						case $this->issetPos($player, 2):
-							$player->sendMessage("§6Please set pos2 before.");
+						case $this->issetPos($player):
+							if ($this->issetPos($player, 1)) {
+								$num = 1;
+							}elseif ($this->issetPos($player, 2)) {
+								$num = 2;
+							}else {
+								return false;
+							}
+							$player->sendMessage("§6Please set pos$num first.");
 							return true;
 							break;
 					}
@@ -281,6 +284,8 @@ class Main extends PluginBase implements Listener{
 					return false;
 			}
 			return false;
+		}else {
+			return false;
 		}
 		
 	}
@@ -296,7 +301,7 @@ class Main extends PluginBase implements Listener{
 				//ブロックが壊されたとき
 				//ブロックの座標を取得できないためBlockBreakEventの代わりには使えなさそう
 			}else{
-				$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
+				$this->setPos($player, $b, $num, "Block info: " . $this->BlocktoStr($b));
 			}
 		}
 	}
@@ -310,10 +315,11 @@ class Main extends PluginBase implements Listener{
 			$b = $e->getBlock();
 			if ($b->x == 0 && $b->y == 0 && $b->z == 0 && $b->getId() == 0) {
 				//Something Error
-				$this->getLogger()->info("Error in BlockBreakEvent. Please tyr again later.");
+				$this->getLogger()->info("Error in BlockBreakEvent. Please try again later.");
 			} else {
-				$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
+				$this->setPos($player, $b, $num, "Block info: " . $this->BlocktoStr($b));
 				if($e instanceof Cancellable){
+					//イベントのキャンセル
 					$e->setCancelled(true);
 				}
 			}
@@ -350,7 +356,10 @@ class Main extends PluginBase implements Listener{
 		return true;
 	}
 
-	private function issetPos(Player $player, int $num) : bool{
+	private function issetPos(Player $player, int $num = 0) : bool{
+		if ($num == 0) {
+			return $this->issetPos($player, 1) && $this->issetPos($player, 2);
+		}
 		return isset($this->_pos[$player->getName()][$num]);
 	}
 
@@ -358,7 +367,7 @@ class Main extends PluginBase implements Listener{
 		return '§ax:' . round($playeros->x, $this->digit) . ' §by:' . round($playeros->y, $this->digit) . ' §cz:' . round($playeros->z, $this->digit);
 	}
 
-	public function BlockToStr(Block $block) : string
+	public function BlocktoStr(Block $block) : string
 	{
 		return '§a' . implode("§f:§b", [$block->getId(), $block->getDamage()]);
 	}
