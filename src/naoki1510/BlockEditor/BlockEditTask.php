@@ -204,19 +204,6 @@ class BlockEditTask extends Task
         return ($interval > 1 && !$this->getOption('random')) ? $this->nextPos($interval - 1) : true;
     }
 
-    private function debug_log(string $data)
-    {
-        if (false) {
-            $filename = Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getDataFolder() . "/BlockEditor.log";
-            if (!file_exists($filename)) {
-                touch($filename);
-            }
-            $log = file_get_contents($filename);
-            $log .= date("Y/m/d H:i:s ") . substr($t = microtime(), strrpos($t, ' ') + 1, 6) . ' ' . $data . " Info: x:" . $this->now->x . " y:" . $this->now->y . " z:" . $this->now->z . "\n";
-            file_put_contents($filename, $log);
-        }
-    }
-
     private function PosToStr(Vector3 $pos)
     {
         return implode(":", [$pos->x, $pos->y, $pos->z]);
