@@ -23,10 +23,12 @@ use pocketmine\event\player\PlayerInteractEvent;
 class Main extends PluginBase implements Listener{
 
 	/** @var Int */
-	public  $digit = 0;
-	private $conf_id;
+	//private const MODE_SET = 0b1;
+	/** @var Int */
+	public  $round_digit = 0;
+	private $config_item_id;
 	/** @var Array */
-	private $_pos = [];
+	private $pos = [];
 	/** @var BlockEditTask[] */
 	private $tasks = [];
 
@@ -50,20 +52,20 @@ class Main extends PluginBase implements Listener{
 		//Item の初期設定
 		try {
 			if ($this->getConfig()->exists('Item')) {
-				$conf_id = Item::get($this->getConfig()->get('Item'))->getId();
+				$config_item_id = Item::get($this->getConfig()->get('Item'))->getId();
 			} else {
-				$conf_id = 270;
-				$this->getConfig()->set('Item', $conf_id);
+				$config_item_id = 270;
+				$this->getConfig()->set('Item', $config_item_id);
 				$this->getConfig()->save();
 			}
 		} catch (\InvalidArgumentException $e) {
 			//Item IDが不正な時
 			$this->getServer()->getLogger()->warning($e->getMessage());
-			$conf_id = 270;
-			$this->getConfig()->set('Item', $conf_id);
+			$config_item_id = 270;
+			$this->getConfig()->set('Item', $config_item_id);
 			$this->getConfig()->save();
 		}
-		$this->conf_id = $conf_id;
+		$this->config_item_id = $config_item_id;
 
 		// イベントリスナー登録
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -77,6 +79,7 @@ class Main extends PluginBase implements Listener{
 			//コマンド送信者がプレイヤーな時のみ
 			switch ($command->getName()) {
 				case "/pos1":
+<<<<<<< HEAD
 					//pos1,pos2をまとめて関数にしてもいいかも
 					$num = 1;
 					if (empty($args[0])) {
@@ -100,31 +103,13 @@ class Main extends PluginBase implements Listener{
 						}
 					}
 					return false;
+=======
+					return $this->cmd_pos($player, $args, 1);
+>>>>>>> b41eae49ac2ac136f71219eff87235fc6aaa951e
 					break;
 
 				case "/pos2":
-					$num = 2;
-					if (empty($args[0])) {
-						if ($this->setPos($player, $player, $num)) {
-							return true;
-						}
-					} else {
-						switch ($args[0]) {
-							case 'show':
-								if ($this->issetPos($player, $num)) {
-									$player->sendMessage('pos' . $num . ' is set to ' . $this->PostoStr($this->getPos($player, $num)));
-								} else {
-									$player->sendMessage('pos' . $num . ' is not set.');
-								}
-								break;
-
-							case 'tp':
-								$player->teleport($this->getPos($player, $num));
-								$player->sendMessage('You was teleported to ' . $this->PostoStr($this->getPos($player, $num)));
-								break;
-						}
-					}
-					return false;
+					return $this->cmd_pos($player, $args, 2);
 					break;
 
 				case '/set':
@@ -287,6 +272,7 @@ class Main extends PluginBase implements Listener{
 		}else {
 			return false;
 		}
+		return false;
 		
 	}
 
@@ -295,7 +281,7 @@ class Main extends PluginBase implements Listener{
 		$player = $e->getPlayer();
 		$item = $player->getInventory()->getItemInHand();
 
-		if ($item->getId() == $this->conf_id) {
+		if ($item->getId() == $this->config_item_id) {
 			$b = $e->getBlock();
 			if($b->x == 0 && $b->y == 0 && $b->z == 0 && $b->getId() == 0){
 				//ブロックが壊されたとき
@@ -311,7 +297,7 @@ class Main extends PluginBase implements Listener{
 		$player = $e->getPlayer();
 		$item = $player->getInventory()->getItemInHand();
 
-		if ($item->getId() == $this->conf_id) {
+		if ($item->getId() == $this->config_item_id) {
 			$b = $e->getBlock();
 			if ($b->x == 0 && $b->y == 0 && $b->z == 0 && $b->getId() == 0) {
 				//Something Error
@@ -327,16 +313,43 @@ class Main extends PluginBase implements Listener{
 
 		
 	}
+	
+	private function cmd_pos(Player $player, Array $args, Int $num) : bool{
+		
+		if (empty($args[0])) {
+			if ($this->setPos($player, $player, $num)) {
+				return true;
+			}
+		} else {
+			switch ($args[0]) {
+				case 'show':
+					if ($this->issetPos($player, $num)) {
+						$player->sendMessage('pos' . $num . ' is set to ' . $this->PostoStr($this->getPos($player, $num)));
+					} else {
+						$player->sendMessage('pos' . $num . ' is not set.');
+					}
+					return true;
+					break;
+
+				case 'tp':
+					$player->teleport($this->getPos($player, $num));
+					$player->sendMessage('You was teleported to ' . $this->PostoStr($this->getPos($player, $num)));
+					return true;
+					break;
+			}
+		}
+		return false;
+	}
 
 	private function setPos(Player $player, Vector3 $playeros, Int $num, string $additionalmessage = NULL) : bool{
-		$this->_pos[$player->getName()][$num] = ['x' => round($playeros->x, $this->digit), 'y' => round($playeros->y, $this->digit), 'z' => round($playeros->z, $this->digit)];
+		$this->pos[$player->getName()][$num] = ['x' => round($playeros->x, $this->round_digit), 'y' => round($playeros->y, $this->round_digit), 'z' => round($playeros->z, $this->round_digit)];
 		$player->sendMessage('pos' . $num . ' is set to ' . $this->PostoStr($playeros) . "§f " . ($additionalmessage) ?: '');
 		return true;
 	}
 
 	public function getPos(Player $player, Int $num) : Vector3{
 		if($this->issetPos($player, $num)){
-			$playeros = $this->_pos[$player->getName()][$num];
+			$playeros = $this->pos[$player->getName()][$num];
 			$v = new Vector3($playeros['x'], $playeros['y'], $playeros['z']);
 		}else{
 			//データがないときには 0,0,0を返すので注意
@@ -345,26 +358,31 @@ class Main extends PluginBase implements Listener{
 		return $v;
 	}
 
-	public function removePos(Player $player, $num = 0) : bool{
+	private function removePos(Player $player, $num = 0) : bool{
 		if($num == 0){
-			$this->_pos[$player->getName()] = null;
+			$this->pos[$player->getName()] = null;
 			$player->sendMessage("Pos were deleted");
 		}else{ 
-			$this->_pos[$player->getName()][$num] = null;
+			$this->pos[$player->getName()][$num] = null;
 			$player->sendMessage("Pos". $num ." was deleted");
 		}
 		return true;
 	}
 
+<<<<<<< HEAD
 	private function issetPos(Player $player, int $num = 0) : bool{
 		if ($num == 0) {
 			return $this->issetPos($player, 1) && $this->issetPos($player, 2);
 		}
 		return isset($this->_pos[$player->getName()][$num]);
+=======
+	private function issetPos(Player $player, int $num) : bool{
+		return isset($this->pos[$player->getName()][$num]);
+>>>>>>> b41eae49ac2ac136f71219eff87235fc6aaa951e
 	}
 
 	public function PostoStr(Vector3 $playeros) : string{
-		return '§ax:' . round($playeros->x, $this->digit) . ' §by:' . round($playeros->y, $this->digit) . ' §cz:' . round($playeros->z, $this->digit);
+		return '§ax:' . round($playeros->x, $this->round_digit) . ' §by:' . round($playeros->y, $this->round_digit) . ' §cz:' . round($playeros->z, $this->round_digit);
 	}
 
 	public function BlocktoStr(Block $block) : string

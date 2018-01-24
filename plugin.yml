@@ -43,15 +43,15 @@ commands:
   #Description to show in the Help command
   description: "set position1 and other"
   #Usage message shown to the user if they type the command in incorrectly.
-  usage: "//pos1 [options: tp show]"
+  usage: "//pos1 ([tp | show])"
   #Permission required to execute the command. This should be the name of a permission defined in the section below.
   permission: op
  /pos2:
   description: "set position2 and other."
-  usage: "//pos1 [options: tp show]"
+  usage: "//pos2 ([tp | show])"
   permission: op
  /pos:
-  description: "set position. §cComming soon..."
+  description: "set position. §cComing soon..."
   usage: "//pos"
   permission: op
  /set:
