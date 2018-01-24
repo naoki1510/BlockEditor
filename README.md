@@ -22,7 +22,7 @@ WEditと違う点として、
 |---|---|
 |//pos1 ([show\|tp])|//pos1のみだとpos1を設定します。showをつけるとpos1の座標を見ることができ、tpをつけるとpos1の座標に飛ぶことができます。
 |//pos2 ([show\|tp])|//pos1と同じ。
-|//pos (1\|2)|**This is COMMING SOON.** pos1,pos2で設定されていないほうを設定します。
+|//pos (1\|2)|**This is COMING SOON.** pos1,pos2で設定されていないほうを設定します。
 |//set [Block ID] \([Options])|ブロックで範囲内を埋め尽くします。
 |//cut ([Options])|範囲内のブロックをすべて空気(Air)に変えます。
 |//replace [Block ID(Search)] [Block ID(Place)] \([Options])|範囲内の指定されたブロックを置き換えます。
