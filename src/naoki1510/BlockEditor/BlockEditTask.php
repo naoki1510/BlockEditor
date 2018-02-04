@@ -26,20 +26,11 @@ class BlockEditTask extends Task
     public $blockcount;
     private $index;
     /** @var Array */
-    private $options;
-    private $default;
-    private $blockdata;
-    private $blocks;
-    private $short;
-    private $long;
+    private $options, $default, $blockdata, $blocks, $short, $long;
     /** @var Player */
     public $player;
     /** @var Vector3 */
-    private $max;
-    private $min;
-    private $start;
-    private $end;
-    private $now;
+    private $max, $min, $start, $end, $now;
     /** @var Level */
     public $level;
     /** @var Block */
