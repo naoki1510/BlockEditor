@@ -22,6 +22,7 @@ api:
 - 2.0.0
 - 3.0.0
 - 3.0.0-ALPHA10
+- 4.0.0
 
 #When to load the plugin. There are currently two options for this: STARTUP and POSTWORLD. Usually POSTWORLD will do fine.
 load: POSTWORLD

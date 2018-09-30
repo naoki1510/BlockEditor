@@ -142,7 +142,7 @@ class BlockEditTask extends Task
                         $this->level->setBlock($this->StrToPos($data[0]), $this->StrToBlock($data[1]));
                     } else {
                         $this->active = false;
-                        Server::getInstance()->getScheduler()->cancelTask($this->getTaskId());
+                        Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getScheduler()->cancelTask($this->getTaskId());
                     }
                 }
             break;
@@ -163,6 +163,9 @@ class BlockEditTask extends Task
     {
         if(!$this->active) return false;
         if($this->getOption('random')){
+            if($interval < -100000 || 100000 > $interval){
+                $interval = 1;
+            }
             $rand = rand(0, max($interval + 25, -(5 * $interval + 63)));;
             if($rand < max($interval + 15, 1)) {
                 $this->nextPos($interval);
@@ -185,7 +188,7 @@ class BlockEditTask extends Task
 
         if ($this->max->x < $this->now->x || $this->now->x < $this->min->x) {
             $this->active = false;
-            Server::getInstance()->getScheduler()->cancelTask($this->getTaskId());
+            Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getScheduler()->cancelTask($this->getTaskId());
             $this->now->x = $this->start->x;
             $this->now->y = $this->start->y;
             $this->now->z = $this->start->z;
@@ -453,7 +456,7 @@ class BlockEditTask extends Task
 
     public function undo(array $args) : BlockEditTask
     {
-        Server::getInstance()->getScheduler()->cancelTask($this->getTaskId());
+        Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getScheduler()->cancelTask($this->getTaskId());
         $this->setMode('undo');
         //初期化
         $this->active = true;
@@ -462,7 +465,7 @@ class BlockEditTask extends Task
         $this->blocks = [];
 
         $options = $this->setOptions($args, $this);
-        Server::getInstance()->getScheduler()->scheduleRepeatingTask($this, $this->getOption("tick_interval", 'int'));
+        Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getScheduler()->scheduleRepeatingTask($this, $this->getOption("tick_interval", 'int'));
         return $this;
     }
 
@@ -471,7 +474,7 @@ class BlockEditTask extends Task
         $task = new BlockEditTask($this->player, $this->start, $this->end, $this->place, $this->search, $this->options);
         $task->setOptions($args);
 
-        Server::getInstance()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'));
+        Server::getInstance()->getPluginManager()->getPlugin("BlockEditor")->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'));
         return $task;
     }
 

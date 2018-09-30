@@ -69,6 +69,8 @@ class Main extends PluginBase implements Listener{
 
 		// イベントリスナー登録
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+
+		//スケジューラーの作成
 	}
 
 	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
@@ -106,14 +108,14 @@ class Main extends PluginBase implements Listener{
 					}
 					try {
 						$id_meta = explode(':', array_shift($args));
-						$b = BlockFactory::get((int)$id_meta[0], (int)($id_meta[1]) ?? 0);
+						$b = BlockFactory::get((int)$id_meta[0], ($id_meta[1]) ?? 0);
 					} catch (\InvalidArgumentException $e) {
 						$player->sendMessage("§e" . $e->getMessage());
 						return true;
 					}
 					$task = new BlockEditTask($player, $this->getPos($player, 1), $this->getPos($player, 2), $b);
 					$task->setOptions($args, $task);
-					$taskId = $this->getServer()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
+					$taskId = $this->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
 					$this->tasks[$taskId] = $task;
 					
 					//TODO このメッセージをコンフィグで設定可能に
@@ -136,7 +138,7 @@ class Main extends PluginBase implements Listener{
 					}
 					$task = new BlockEditTask($player, $this->getPos($player, 1), $this->getPos($player, 2));
 					$task->setOptions($args, $task);
-					$taskId = $this->getServer()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
+					$taskId = $this->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
 					$this->tasks[$taskId] = $task;
 					
 					//TODO このメッセージをコンフィグで設定可能に
@@ -170,9 +172,9 @@ class Main extends PluginBase implements Listener{
 					}
 					try {
 						$id_meta_s = explode(':', array_shift($args));
-						$b_s = BlockFactory::get((int)$id_meta_s[0], (int)@($id_meta_s[1]) ? : 0);
+						$b_s = BlockFactory::get((int)$id_meta_s[0], @($id_meta_s[1]) ? : 0);
 						$id_meta_p = explode(':', array_shift($args));
-						$b_p = BlockFactory::get((int)$id_meta_p[0], (int)@($id_meta_p[1]) ? : 0);
+						$b_p = BlockFactory::get((int)$id_meta_p[0], @($id_meta_p[1]) ? : 0);
 					} catch (\InvalidArgumentException $e) {
 						$player->sendMessage("§e" . $e->getMessage());
 						return true;
@@ -181,7 +183,7 @@ class Main extends PluginBase implements Listener{
 					$task = new BlockEditTask($player, $this->getPos($player, 1), $this->getPos($player, 2), $b_p, $b_s);
 					$task->setOptions($args, $task);
 					$task->setOption("compare_meta", isset($id_meta_s[1]));
-					$taskId = $this->getServer()->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
+					$taskId = $this->getScheduler()->scheduleRepeatingTask($task, $task->getOption("tick_interval", 'int'))->getTaskId();
 					$this->tasks[$taskId] = $task;
 
 					Server::getInstance()->broadcastMessage($player->getName() . "'s §breplace§f(TaskID: §c" . $task->getTaskId() . "§f, §a" . $task->blockcount . "§f Blocks) started.");
@@ -191,7 +193,7 @@ class Main extends PluginBase implements Listener{
 
 				case '/stop':
 					if (!empty($args[0]) && is_numeric($args[0])) {
-						$this->getServer()->getScheduler()->cancelTask(intval($args[0]));;
+						$this->getScheduler()->cancelTask(intval($args[0]));;
 						return true;
 					}
 					break;
@@ -257,7 +259,9 @@ class Main extends PluginBase implements Listener{
 				//ブロックが壊されたとき
 				//ブロックの座標を取得できないためBlockBreakEventの代わりには使えなさそう
 			}else{
-				$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
+				if($b->x != $this->getPos($player,$num)->x || $b->y != $this->getPos($player, $num)->y || $b->z != $this->getPos($player, $num)->z){
+					$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
+				}
 			}
 		}
 	}
@@ -271,11 +275,13 @@ class Main extends PluginBase implements Listener{
 			$b = $e->getBlock();
 			if ($b->x == 0 && $b->y == 0 && $b->z == 0 && $b->getId() == 0) {
 				//Something Error
-				$this->getLogger()->info("Error in BlockBreakEvent. Please tyr again later.");
+				$this->getLogger()->info("Error in BlockBreakEvent. Please try again later.");
 			} else {
-				$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
-				if($e instanceof Cancellable){
-					$e->setCancelled(true);
+				if ($b->x != $this->getPos($player, $num)->x || $b->y != $this->getPos($player, $num)->y || $b->z != $this->getPos($player, $num)->z) {
+					$this->setPos($player, $b, $num, "Block info: " . $this->BlockToStr($b));
+					if ($e instanceof Cancellable) {
+						$e->setCancelled(true);
+					}
 				}
 			}
 		}
